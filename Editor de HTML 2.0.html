@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script src="https://cdn.jsdelivr.net/npm/prettier@2.0.5/standalone.js"></script>
     <style>
       .container {
         display: flex;
@@ -61,6 +60,9 @@
     </style>
   </head>
   <body>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.1/css/all.css" integrity="sha384-vp86vTRFVJgpjF9jiIGPEEqYqlDwgyBgEF109VFjmqGmIY/Y4HV4d3Gp2irVfcrp" crossorigin="anonymous">
+
+
     <div class="container">
       <div class="left-pane">
         <div contenteditable="true" id="text-pane"></div>
@@ -72,82 +74,99 @@
     <div class="toolbar">
       <button onclick="execCommandWithArg('bold', null)">
         <b>
-          <i class="fa fa-bold"></i>
-        </b><b>B</b>
+            <i class="fas fa-bold"></i>
       </button>
       <button onclick="execCommandWithArg('italic', null)">
         <i>
           <i class="fa fa-italic"></i>
-        </i><i>I</i>
       </button>
       <button onclick="execCommandWithArg('underline', null)">
         <u>
           <i class="fa fa-underline"></i>
-        </u><u>U</u>
       </button>
       <button onclick="execCommandWithArg('insertOrderedList', null)">
-        <i class="fa fa-list-ol"></i>&#35;
+        <i class="fa fa-list-ol"></i>
       </button>
       <button onclick="execCommandWithArg('insertUnorderedList', null)">
-        <i class="fa fa-list-ul"></i>&#8226;
+        <i class="fa fa-list-ul"></i>
       </button>
       <button onclick="execCommandWithArg('justifyLeft', null)">
-        <i class="fa fa-align-left"></i>&#8592;
+        <i class="fa fa-align-left"></i>
       </button>
       <button onclick="execCommandWithArg('justifyCenter', null)">
-        <i class="fa fa-align-center"></i>&#8596;
+        <i class="fa fa-align-center"></i>
       </button>
       <button onclick="execCommandWithArg('justifyRight', null)">
-        <i class="fa fa-align-right"></i>&#8594;
+        <i class="fa fa-align-right"></i>
       </button>
       <button onclick="execCommandWithArg('justifyFull', null)">
-        <i class="fa fa-align-justify"></i>&#8617;
+        <i class="fa fa-align-justify"></i>
       </button>
       <button onclick="execCommandWithArg('indent', null)">
-        <i class="fa fa-indent"></i>&#xbb;
+        <i class="fa fa-indent"></i>
       </button>
       <button onclick="execCommandWithArg('outdent', null)">
-        <i class="fa fa-outdent"></i>&#xab;
+        <i class="fa fa-outdent"></i>
       </button>
       <button onclick="execCommandWithArg('createLink', prompt('Insira o URL:','http://'))">
-        <i class="fa fa-link"></i>&#128279;
+        <i class="fa fa-link"></i>
       </button>
       <button onclick="execCommandWithArg('unlink', null)">
-        <i class="fa fa-unlink"></i>&#128682;
+        <i class="fa fa-unlink"></i>
       </button>
       <button onclick="execCommandWithArg('insertImage', prompt('Insira a URL da imagem:','http://'))">
-        <i class="fa fa-image"></i>&#128247;
+        <i class="fa fa-image"></i>
       </button>
+      <button onclick="breakLines()">Quebrar linhas</button>
+      <button onclick="indentCode()" id="indent-code-button">Indentar</button>
     </div>
     
     <script>
-        function generateHTML() {
-            const editor = document.getElementById("text-pane");
-            const output = document.getElementById("code-pane");
-            let code = editor.innerHTML;
+    
+        function execCommandWithArg(command, arg) {
+          document.execCommand(command, false, arg);
+        }
         
-            code = prettier.format(code, { parser: "html" });
+        const textPane = document.querySelector("#text-pane");
+        const codePane = document.querySelector("#code-pane");
+        textPane.addEventListener("input", updateCodePane);
+        codePane.addEventListener("input", updateTextPane);
         
-            output.textContent = code;
+        function updateCodePane() {
+          codePane.textContent = textPane.innerHTML;
+        }
+        
+        function updateTextPane() {
+          textPane.innerHTML = codePane.textContent;
+        }
+        
+        document.querySelector("#indent-code-button").addEventListener("click", indentCode);
+
+      
+        function breakLines() {
+          codePane.textContent = codePane.textContent.replace(/</g, "\n<").replace(/>/g, ">\n");
+        }
+
+        function indentCode() {
+            const lines = codePane.innerHTML.split("\n");
+            let indentation = "";
+            let indentedCode = "";
+            for (let i = 0; i < lines.length; i++) {
+              const line = lines[i];
+              if (line.startsWith("</")) {
+                indentation = indentation.substring(2);
+              }
+              indentedCode += indentation + line + "\n";
+              if (line.startsWith("<") && !line.startsWith("</")) {
+                indentation += "  ";
+              }
+            }
+            codePane.textContent = indentedCode;
           }
-      function execCommandWithArg(command, arg) {
-        document.execCommand(command, false, arg);
-      }
+          
+        
+      </script>
       
-      const textPane = document.querySelector("#text-pane");
-      const codePane = document.querySelector("#code-pane");
-      textPane.addEventListener("input", updateCodePane);
-      codePane.addEventListener("input", updateTextPane);
-      
-      function updateCodePane() {
-        codePane.textContent = textPane.innerHTML;
-      }
-      
-      function updateTextPane() {
-        textPane.innerHTML = codePane.textContent;
-      }
-      
-    </script>
     
   </body>
 </html>
